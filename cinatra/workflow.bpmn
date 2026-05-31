@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:cinatra="http://cinatra.ai/schema/bpmn/profile-1.0"
+  id="blog-content-workflow-defs"
+  targetNamespace="http://cinatra.ai/schema/bpmn/profile-1.0">
+  <bpmn:process id="blog-content-workflow" name="Blog Content Publish" isExecutable="false">
+    <bpmn:documentation>Review-gated publish flow for a blog post: approve → create WordPress draft → manual publish → notify.</bpmn:documentation>
+    <bpmn:extensionElements>
+      <cinatra:workflowMeta name="Blog Content Publish" />
+      <cinatra:placeholders>
+        <cinatra:placeholder name="projectId" type="string" required="true" description="Blog project (cinatra.objects @cinatra-ai/assets:blog-project)">
+          <cinatra:placeholderHint kind="blog-project" />
+        </cinatra:placeholder>
+        <cinatra:placeholder name="postId" type="string" required="true" description="Blog post (cinatra.objects @cinatra-ai/assets:blog-post)">
+          <cinatra:placeholderHint kind="blog-post" />
+        </cinatra:placeholder>
+        <cinatra:placeholder name="wordpressInstanceId" type="string" required="true" description="WordPress instance to draft into">
+          <cinatra:placeholderHint kind="wordpress-instance" />
+        </cinatra:placeholder>
+      </cinatra:placeholders>
+    </bpmn:extensionElements>
+
+    <bpmn:startEvent id="start" name="Start" />
+
+    <bpmn:userTask id="review_publish_bundle" name="Review publish bundle">
+      <bpmn:extensionElements>
+        <cinatra:taskKind value="approval" />
+        <cinatra:approvalConfig level="organization" rejectionPolicy="needs_revision" />
+      </bpmn:extensionElements>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="create_wordpress_draft" name="Create WordPress draft">
+      <bpmn:extensionElements>
+        <cinatra:agentRef package="@cinatra-ai/blog-wordpress-publish-agent" />
+        <cinatra:taskInput>{"projectId":"{{projectId}}","postId":"{{postId}}","wordpressInstanceId":"{{wordpressInstanceId}}"}</cinatra:taskInput>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+
+    <bpmn:manualTask id="publish_in_wordpress_admin" name="Publish in WordPress admin" />
+
+    <bpmn:sendTask id="notify_publish_checkpoint_complete" name="Notify publish complete">
+      <bpmn:extensionElements>
+        <cinatra:messageBody>Blog post {{postId}} published to {{wordpressInstanceId}}.</cinatra:messageBody>
+      </bpmn:extensionElements>
+    </bpmn:sendTask>
+
+    <bpmn:endEvent id="end" name="End" />
+
+    <bpmn:sequenceFlow id="flow_start_review" sourceRef="start" targetRef="review_publish_bundle" />
+    <bpmn:sequenceFlow id="flow_review_draft" sourceRef="review_publish_bundle" targetRef="create_wordpress_draft">
+      <bpmn:extensionElements>
+        <cinatra:transitionOutcome outcome="success" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_draft_publish" sourceRef="create_wordpress_draft" targetRef="publish_in_wordpress_admin">
+      <bpmn:extensionElements>
+        <cinatra:transitionOutcome outcome="success" />
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_publish_notify" sourceRef="publish_in_wordpress_admin" targetRef="notify_publish_checkpoint_complete" />
+    <bpmn:sequenceFlow id="flow_notify_end" sourceRef="notify_publish_checkpoint_complete" targetRef="end" />
+  </bpmn:process>
+</bpmn:definitions>

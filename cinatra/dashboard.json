@@ -1,0 +1,88 @@
+{
+  "apiVersion": "v1.2",
+  "scopeLevel": "project",
+  "portlets": [
+    {
+      "instanceId": "projects-pane",
+      "kind": "object-list",
+      "version": "1.0.0",
+      "slot": "fixed",
+      "config": { "typeId": "@cinatra-ai/assets:blog-project" },
+      "outputs": ["selectedId"]
+    },
+    {
+      "instanceId": "project-detail",
+      "kind": "object-detail",
+      "version": "1.0.0",
+      "slot": "fixed",
+      "config": {},
+      "inputs": { "objectId": { "fromInstanceId": "projects-pane", "key": "selectedId" } }
+    },
+    {
+      "instanceId": "ideas-pane",
+      "kind": "object-list",
+      "version": "1.0.0",
+      "slot": "fixed",
+      "config": { "typeId": "@cinatra-ai/assets:blog-idea" },
+      "inputs": { "parentId": { "fromInstanceId": "projects-pane", "key": "selectedId" } },
+      "outputs": ["selectedId"]
+    },
+    {
+      "instanceId": "posts-pane",
+      "kind": "object-list",
+      "version": "1.0.0",
+      "slot": "fixed",
+      "config": { "typeId": "@cinatra-ai/assets:blog-post" },
+      "inputs": { "parentId": { "fromInstanceId": "ideas-pane", "key": "selectedId" } },
+      "outputs": ["selectedId"]
+    },
+    {
+      "instanceId": "draft-editor",
+      "kind": "artifact-edit-text",
+      "version": "1.0.0",
+      "slot": "fixed",
+      "config": { "refSwapPrimitive": "blog_post_update", "parentObjectField": "postArtifactId" },
+      "inputs": { "parentObjectId": { "fromInstanceId": "posts-pane", "key": "selectedId" } }
+    },
+    {
+      "instanceId": "hero-image",
+      "kind": "artifact-edit-binary-prompt",
+      "version": "1.0.0",
+      "slot": "fixed",
+      "config": {
+        "refSwapMode": "auto",
+        "generationPrimitive": "blog_image_generate_start",
+        "parentObjectField": "imageArtifactId"
+      },
+      "inputs": { "parentObjectId": { "fromInstanceId": "posts-pane", "key": "selectedId" } }
+    },
+    {
+      "instanceId": "version-history",
+      "kind": "artifact-version-history",
+      "version": "1.0.0",
+      "slot": "fixed",
+      "config": { "parentObjectField": "postArtifactId" },
+      "inputs": { "parentObjectId": { "fromInstanceId": "posts-pane", "key": "selectedId" } }
+    },
+    {
+      "instanceId": "publish-launcher",
+      "kind": "workflow-launcher",
+      "version": "1.0.0",
+      "slot": "fixed",
+      "config": { "templateKey": "blog-content-workflow" },
+      "inputs": {
+        "projectId": { "fromInstanceId": "projects-pane", "key": "selectedId" },
+        "postId": { "fromInstanceId": "posts-pane", "key": "selectedId" }
+      },
+      "outputs": ["workflowId"]
+    },
+    {
+      "instanceId": "publish-status",
+      "kind": "workflow-status",
+      "version": "1.0.0",
+      "slot": "fixed",
+      "config": {},
+      "inputs": { "projectId": { "fromDashboard": "projectId" } }
+    }
+  ]
+}
