@@ -17,4 +17,4 @@ A review-gated workflow + operator dashboard for shipping a blog post end-to-end
 - Launch the publish workflow with typed pickers for `projectId` / `postId` / `wordpressInstanceId` (credentials never reach the client)
 - Watch the publish workflow's tasks + status update in the dashboard's `workflow-status` portlet
 - Restart a publish with the same `{projectId, postId, wordpressInstanceId}` and get a structured idempotent-noop response instead of a duplicate WordPress draft
-- Built on the workflow-extensions-as-app-surfaces doctrine (`docs/design/operational/07-...`) + Cinatra BPMN Profile 1.0 (`docs/design/operational/08-...`)
+- Built on the workflow-extension surfaces doctrine and the Cinatra BPMN Profile (see [workflow-extension-surfaces](https://docs.cinatra.ai/references/platform/workflow-extension-surfaces.md) and [cinatra-bpmn-profile](https://docs.cinatra.ai/references/platform/cinatra-bpmn-profile.md))

@@ -8,6 +8,7 @@
   "cinatra": {
     "apiVersion": "cinatra.ai/v1",
     "kind": "workflow",
+    "dependencies": [],
     "workflowVersion": 1
   }
 }
