@@ -177,7 +177,9 @@ export function validateWorkflowPackageShape(pkg) {
   if (typeof cinatra.workflowVersion !== "number" || !Number.isInteger(cinatra.workflowVersion) || cinatra.workflowVersion <= 0) {
     errors.push(`cinatra.workflowVersion must be a positive integer (got ${JSON.stringify(cinatra.workflowVersion)})`);
   }
-  const allowed = new Set(["kind", "apiVersion", "workflowVersion", "dependencies"]);
+  // `roles` is the canonical cross-kind extension-role declaration (host-side
+  // single-claimant validation at manifest generation); permitted, not drift.
+  const allowed = new Set(["kind", "apiVersion", "workflowVersion", "dependencies", "roles"]);
   for (const k of Object.keys(cinatra)) {
     if (!allowed.has(k)) errors.push(`unexpected cinatra key "${k}"`);
   }

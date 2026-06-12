@@ -12,6 +12,9 @@
   "cinatra": {
     "apiVersion": "cinatra.ai/v1",
     "kind": "workflow",
+    "roles": [
+      "blog-operator-dashboard"
+    ],
     "dependencies": [],
     "workflowVersion": 1
   }
