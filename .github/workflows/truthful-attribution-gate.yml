@@ -1,0 +1,36 @@
+# truthful-attribution-gate (advisory soak)
+#
+# Thin caller for the org-reusable truthful-attribution-gate in cinatra-ai/ci.
+# Runs in WARN mode for the initial soak: findings are annotated, the check is
+# ALWAYS green and never fails a PR. No .github/gate-suite.json is committed;
+# the WARN scope exercises presence plus the human arm only.
+#
+# The reusable implementation is pinned by its full 40-char commit SHA — that
+# pin is the trust boundary. The trailing version comment on the `uses:` ref
+# satisfies this repo's actions-pinned-gate convention (a format-only check that
+# requires every remote `uses:` ref to carry a version comment).
+
+name: truthful-attribution-gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+  checks: read
+  # actions:read is mandatory: the engine resolves a reusable-workflow check-run
+  # to its Actions run to verify the referenced workflow at the pinned SHA. With
+  # an explicit permissions block, any omitted scope defaults to `none`, and a
+  # called reusable workflow cannot exceed the caller's grant — omitting this
+  # causes a startup failure (red/missing check) that WARN mode cannot rescue.
+  actions: read
+
+jobs:
+  truthful-attribution-gate:
+    uses: cinatra-ai/ci/.github/workflows/truthful-attribution-gate.yml@8eede1022e835997d94974e4bd6205daf72131a2 # v0.1.0
+    with:
+      mode: warn
+      ref: 8eede1022e835997d94974e4bd6205daf72131a2
